@@ -1,0 +1,12 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "yuripo",
+	"main": "src/index.tsx",
+	"compatibility_date": "2026-10-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"rules": [{ "type": "Text", "globs": ["**/*.css"], "fallthrough": true }],
+	"vars": {
+		"S3_REGION": "auto",
+		"S3_PATH_STYLE": "true"
+	}
+}
