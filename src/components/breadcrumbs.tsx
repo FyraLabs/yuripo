@@ -1,8 +1,8 @@
 import { crumbsFor, hrefFor } from "../paths";
 import { ChevronRightIcon } from "./icons";
 
-export function Breadcrumbs({ bucket, prefix }: { bucket: string; prefix: string }) {
-	const crumbs = [{ name: bucket, prefix: "" }, ...crumbsFor(prefix)];
+export function Breadcrumbs({ root, prefix }: { root: string; prefix: string }) {
+	const crumbs = [{ name: root, prefix: "" }, ...crumbsFor(prefix)];
 	const current = crumbs.length - 1;
 
 	return (

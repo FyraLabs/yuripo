@@ -61,10 +61,6 @@ export class Bucket {
 		this.fetch = createFetch(config);
 	}
 
-	get name() {
-		return this.config.bucket;
-	}
-
 	async list(prefix: string, cursor?: string): Promise<Listing> {
 		const url = this.urlFor("");
 		url.searchParams.set("list-type", "2");

@@ -18,11 +18,13 @@ declare module "hono" {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+const siteNameFor = (env: Bindings) => env.SITE_NAME || env.S3_BUCKET || "Bucket";
+
 app.use(
 	jsxRenderer(({ children, title }, c) => (
 		<Layout
 			plausible={readPlausibleConfig(c.env)}
-			siteName={c.env.SITE_NAME || c.env.S3_BUCKET || "Bucket"}
+			siteName={siteNameFor(c.env)}
 			title={title}
 		>
 			{children}
@@ -73,12 +75,13 @@ app.get("*", async (c) => {
 		);
 	}
 
+	const siteName = siteNameFor(c.env);
 	return c.render(
 		<>
-			<Breadcrumbs bucket={bucket.name} prefix={key} />
+			<Breadcrumbs prefix={key} root={siteName} />
 			<ListingTable cursor={cursor} listing={listing} />
 		</>,
-		{ title: key ? key.slice(0, -1) : bucket.name },
+		{ title: key ? key.slice(0, -1) : siteName },
 	);
 });
 
