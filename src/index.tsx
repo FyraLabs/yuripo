@@ -49,7 +49,7 @@ app.get("*", async (c) => {
 		}
 		c.status(404);
 		return c.render(
-			<Message eyebrow="404" title="File not found">
+			<Message title="File not found">
 				<p>
 					Nothing exists at <code>{key}</code> in this bucket.
 				</p>
@@ -64,7 +64,7 @@ app.get("*", async (c) => {
 	if (key && !cursor && listing.folders.length === 0 && listing.files.length === 0) {
 		c.status(404);
 		return c.render(
-			<Message eyebrow="404" title="Folder not found">
+			<Message title="Folder not found">
 				<p>
 					Nothing exists under <code>{key}</code> in this bucket.
 				</p>
@@ -86,7 +86,7 @@ app.onError((error, c) => {
 	if (error instanceof URIError) {
 		c.status(400);
 		return c.render(
-			<Message eyebrow="400" title="Malformed path">
+			<Message title="Malformed path">
 				<p>That URL couldn't be decoded into an object key.</p>
 			</Message>,
 			{ title: "Bad request" },
@@ -96,7 +96,7 @@ app.onError((error, c) => {
 	if (error instanceof ConfigError) {
 		c.status(500);
 		return c.render(
-			<Message eyebrow="Configuration" title="The bucket isn't configured">
+			<Message title="The bucket isn't configured">
 				<p>Set these environment variables on the worker:</p>
 				<ul class="code-list">
 					{error.missing.map((name) => (
@@ -113,8 +113,10 @@ app.onError((error, c) => {
 	if (error instanceof S3Error) {
 		c.status(502);
 		return c.render(
-			<Message eyebrow={`Storage error · ${error.code}`} title="The bucket returned an error">
-				<p>{error.message}</p>
+			<Message title="The bucket returned an error">
+				<p>
+					{error.message} (<code>{error.code}</code>)
+				</p>
 			</Message>,
 			{ title: "Storage error" },
 		);
@@ -123,7 +125,7 @@ app.onError((error, c) => {
 	console.error(error);
 	c.status(500);
 	return c.render(
-		<Message eyebrow="500" title="Something went wrong">
+		<Message title="Something went wrong">
 			<p>An unexpected error occurred while talking to the bucket.</p>
 		</Message>,
 		{ title: "Error" },

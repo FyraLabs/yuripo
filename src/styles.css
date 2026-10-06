@@ -257,15 +257,6 @@ a.entry:hover > span {
 	color: var(--muted-foreground);
 }
 
-.message .eyebrow {
-	margin: 0 0 0.25rem;
-	color: var(--accent);
-	font-size: 0.75rem;
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
-}
-
 .code-list {
 	margin: 0 0 1.5rem;
 	padding: 0;

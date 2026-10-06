@@ -55,15 +55,10 @@ const PAGE_SIZE = 500;
 const PASSTHROUGH_STATUSES = new Set([200, 206, 304, 412, 416]);
 
 export class Bucket {
-	private readonly aws: AwsClient;
+	private readonly fetch: typeof fetch;
 
 	constructor(private readonly config: BucketConfig) {
-		this.aws = new AwsClient({
-			accessKeyId: config.accessKeyId,
-			secretAccessKey: config.secretAccessKey,
-			region: config.region,
-			service: "s3",
-		});
+		this.fetch = createFetch(config);
 	}
 
 	get name() {
@@ -82,7 +77,7 @@ export class Bucket {
 			url.searchParams.set("continuation-token", cursor);
 		}
 
-		const response = await this.aws.fetch(url);
+		const response = await this.fetch(url);
 		const body = await response.text();
 		if (!response.ok) {
 			throw toS3Error(response.status, body);
@@ -112,7 +107,7 @@ export class Bucket {
 		key: string,
 		{ method, headers }: { method: "GET" | "HEAD"; headers: Headers },
 	): Promise<Response | null> {
-		const response = await this.aws.fetch(this.urlFor(key), { method, headers });
+		const response = await this.fetch(this.urlFor(key), { method, headers });
 		if (response.status === 404) {
 			return null;
 		}
@@ -137,6 +132,14 @@ export class Bucket {
 		}
 		return url;
 	}
+}
+
+function createFetch({ credentials, region }: BucketConfig): typeof fetch {
+	if (!credentials) {
+		return (input, init) => fetch(input, init);
+	}
+	const aws = new AwsClient({ ...credentials, region, service: "s3" });
+	return (input, init) => aws.fetch(input, init);
 }
 
 function toS3Error(status: number, body: string) {
