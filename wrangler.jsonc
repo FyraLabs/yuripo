@@ -11,5 +11,6 @@
     "S3_REGION": "auto",
     "S3_PATH_STYLE": "false",
     "SITE_NAME": "repos.fyralabs.com",
+    "PLAUSIBLE_DOMAIN": "repos.fyralabs.com"
   },
 }
