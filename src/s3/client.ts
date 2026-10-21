@@ -1,5 +1,6 @@
 import { AwsClient } from "aws4fetch";
 import { XMLParser } from "fast-xml-parser";
+import { cachePolicyFor, edgeCacheOptions, LISTING } from "../cache-policy";
 import type { BucketConfig } from "../env";
 import { encodeKey } from "../paths";
 
@@ -73,7 +74,7 @@ export class Bucket {
 			url.searchParams.set("continuation-token", cursor);
 		}
 
-		const response = await this.fetch(url);
+		const response = await this.fetch(url, { cf: edgeCacheOptions(LISTING) });
 		const body = await response.text();
 		if (!response.ok) {
 			throw toS3Error(response.status, body);
@@ -103,7 +104,11 @@ export class Bucket {
 		key: string,
 		{ method, headers }: { method: "GET" | "HEAD"; headers: Headers },
 	): Promise<Response | null> {
-		const response = await this.fetch(this.urlFor(key), { method, headers });
+		const response = await this.fetch(this.urlFor(key), {
+			method,
+			headers,
+			cf: edgeCacheOptions(cachePolicyFor(key)),
+		});
 		if (response.status === 404) {
 			return null;
 		}

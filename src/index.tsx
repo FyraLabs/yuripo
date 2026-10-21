@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { jsxRenderer } from "hono/jsx-renderer";
 import { isNewDownload, isRepoMetadata, readPlausibleConfig, sendDownloadEvent } from "./analytics";
+import { isSignedRepomdKey, LISTING } from "./cache-policy";
 import { Breadcrumbs } from "./components/breadcrumbs";
 import { Layout } from "./components/layout";
 import { ListingTable } from "./components/listing-table";
@@ -8,6 +9,7 @@ import { Message } from "./components/message";
 import { serveObject } from "./download";
 import { type Bindings, ConfigError, readBucketConfig } from "./env";
 import { hrefFor, isFolderKey, keyFromPathname } from "./paths";
+import { serveRepomd } from "./repomd";
 import { Bucket, S3Error } from "./s3/client";
 
 declare module "hono" {
@@ -38,7 +40,9 @@ app.get("*", async (c) => {
 	const bucket = new Bucket(readBucketConfig(c.env));
 
 	if (!isFolderKey(key)) {
-		const object = await serveObject(bucket, key, c.req.raw);
+		const object = isSignedRepomdKey(key)
+			? await serveRepomd(bucket, key, c.req.raw, (promise) => c.executionCtx.waitUntil(promise))
+			: await serveObject(bucket, key, c.req.raw);
 		if (object) {
 			const plausible = readPlausibleConfig(c.env);
 			if (plausible && !isRepoMetadata(key) && isNewDownload(c.req.raw, object)) {
@@ -76,6 +80,7 @@ app.get("*", async (c) => {
 	}
 
 	const siteName = siteNameFor(c.env);
+	c.header("cache-control", LISTING.cacheControl);
 	return c.render(
 		<>
 			<Breadcrumbs prefix={key} root={siteName} />

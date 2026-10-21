@@ -1,3 +1,4 @@
+import { cachePolicyFor } from "./cache-policy";
 import { multipartByteranges } from "./multipart";
 import {
 	type ByteRange,
@@ -24,7 +25,6 @@ const PASSTHROUGH_RESPONSE_HEADERS = [
 	"accept-ranges",
 	"etag",
 	"last-modified",
-	"cache-control",
 	"content-encoding",
 ];
 
@@ -124,6 +124,7 @@ function downloadHeaders(upstreamHeaders: Headers, key: string) {
 		headers.set("content-type", "application/octet-stream");
 	}
 	headers.set("accept-ranges", "bytes");
+	headers.set("cache-control", cachePolicyFor(key).cacheControl);
 	headers.set("content-disposition", inlineDisposition(key));
 	headers.set("x-content-type-options", "nosniff");
 	headers.set("content-security-policy", "sandbox");
