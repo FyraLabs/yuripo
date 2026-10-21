@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { jsxRenderer } from "hono/jsx-renderer";
 import {
   isNewDownload,
-  isRepoMetadata,
   readPlausibleConfig,
   sendDownloadEvent,
 } from "./analytics";
@@ -56,11 +55,7 @@ app.get("*", async (c) => {
       : await serveObject(bucket, key, c.req.raw);
     if (object) {
       const plausible = readPlausibleConfig(c.env);
-      if (
-        plausible &&
-        !isRepoMetadata(key) &&
-        isNewDownload(c.req.raw, object)
-      ) {
+      if (plausible && isNewDownload(c.req.raw, object)) {
         c.executionCtx.waitUntil(sendDownloadEvent(plausible, c.req.raw, key));
       }
       return object;

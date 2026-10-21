@@ -21,8 +21,12 @@ export function scriptUrl(config: PlausibleConfig) {
   return `${config.host}/js/script.outbound-links.js`;
 }
 
-export function isRepoMetadata(key: string) {
+function isRepoMetadata(key: string) {
   return key.split("/").includes("repodata");
+}
+
+function eventNameFor(key: string) {
+  return isRepoMetadata(key) ? "Metadata" : "Download";
 }
 
 export function isNewDownload(request: Request, response: Response) {
@@ -57,7 +61,7 @@ export async function sendDownloadEvent(
     method: "POST",
     headers,
     body: JSON.stringify({
-      name: "Download",
+      name: eventNameFor(key),
       domain: config.domain,
       url: request.url,
       referrer: request.headers.get("referer") ?? undefined,
