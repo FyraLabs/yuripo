@@ -54,7 +54,7 @@ export async function sendDownloadEvent(
     headers.set("user-agent", userAgent);
   }
   if (clientIp) {
-    headers.set("x-forwarded-for", clientIp);
+    headers.set("x-plausible-ip", clientIp);
   }
 
   const response = await fetch(`${config.host}/api/event`, {
